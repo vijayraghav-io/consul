@@ -3979,6 +3979,7 @@ func (a *Agent) loadMetadata(conf *config.RuntimeConfig) error {
 		meta[k] = v
 	}
 	meta[structs.MetaSegmentKey] = conf.SegmentName
+	meta[structs.MetaConsulVersion] = conf.Version
 	return a.State.LoadMetadata(meta)
 }
 
