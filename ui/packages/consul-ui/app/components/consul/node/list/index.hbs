@@ -50,16 +50,25 @@ as |item index|>
         {{item.Address}}
       </dd>
     </dl>
-    {{#if item.Meta.consul-version}}
     <dl>
       <dt>
         <span>ConsulVersion</span>
       </dt>
       <dd>
-          <FlightIcon class='w-4 h-4' @size='24' @name='consul-color' @stretched={{true}} />
-          <span>{{item.Meta.consul-version}}</span>
+          {{!-- Displaying consul version from node meta data --}}
+          {{#if item.Meta.consul-version}}
+            <FlightIcon class='w-4 h-4' @size='24' @name='consul-color' @stretched={{true}} />
+            <span>{{item.Meta.consul-version}}</span>
+          {{!-- For backward compatibility, displaying consul version from service meta data for server agents --}}
+          {{else if (gt item.Services.length 0)}}
+            {{#each item.Services as |service|}}
+              {{#if (and (eq service.ID 'consul') (not-eq service.Meta.version ''))}}
+                <FlightIcon class='w-4 h-4' @size='24' @name='consul-color' @stretched={{true}} />
+                <span>{{service.Meta.version}}</span>
+              {{/if}}
+            {{/each}}
+          {{/if}}
       </dd>
     </dl>
-    {{/if}}
   </BlockSlot>
 </ListCollection>
