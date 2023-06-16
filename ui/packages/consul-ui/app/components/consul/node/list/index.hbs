@@ -60,13 +60,12 @@ as |item index|>
             <FlightIcon class='w-4 h-4' @size='24' @name='consul-color' @stretched={{true}} />
             <span>{{item.Meta.consul-version}}</span>
           {{!-- For backward compatibility, displaying consul version from service meta data for server agents --}}
-          {{else if (gt item.Services 0)}}
+          {{else if (gt item.Services.length 0)}}
             {{#each item.Services as |service|}}
-              {{!-- {{#if (and (eq service.ID 'consul') (not-eq service.Meta.version ''))}} --}}
-                <span>Hi</span>
+              {{#if (and (eq service.ID 'consul') (not-eq service.Meta.version ''))}}
                 <FlightIcon class='w-4 h-4' @size='24' @name='consul-color' @stretched={{true}} />
                 <span>{{service.Meta.version}}</span>
-              {{!-- {{/if}} --}}
+              {{/if}}
             {{/each}}
           {{/if}}
       </dd>
