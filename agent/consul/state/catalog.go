@@ -3450,11 +3450,13 @@ func parseNodes(tx ReadTxn, ws memdb.WatchSet, idx uint64,
 		ws.AddWithLimit(watchLimit, services.WatchCh(), allServicesCh)
 		for service := services.Next(); service != nil; service = services.Next() {
 			ns := service.(*structs.ServiceNode).ToNodeService()
-			dump.Services = append(dump.Services, ns)
 			//Update Node Meta with Consul version from Consul Service - for backward compatibility
+			fmt.Printf("\n ln3455 Catalog.go : ns.ID - %s : ns.Meta[version] - %s\n", ns.ID, ns.Meta["version"])
 			if _, ok := dump.Meta[structs.MetaConsulVersion]; !ok && ns.ID == "consul" && ns.Meta["version"] != "" {
 				dump.Meta[structs.MetaConsulVersion] = ns.Meta["version"]
+				fmt.Printf("\n ln3458 Catalog.go : dump.Meta[structs.MetaConsulVersion] - %s\n", dump.Meta[structs.MetaConsulVersion])
 			}
+			dump.Services = append(dump.Services, ns)
 		}
 
 		// Query the service level checks

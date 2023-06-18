@@ -1087,10 +1087,10 @@ AFTER_CHECK:
 		"partition", getSerfMemberEnterpriseMeta(member).PartitionOrDefault(),
 	)
 
-	buildVersion, err := metadata.Build(&member)
-	if err != nil {
-		return err
-	}
+	// buildVersion, err := metadata.Build(&member)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// Register with the catalog.
 	req := structs.RegisterRequest{
@@ -1107,9 +1107,9 @@ AFTER_CHECK:
 			Output:  structs.SerfCheckAliveOutput,
 		},
 		EnterpriseMeta: *nodeEntMeta,
-		NodeMeta: map[string]string{
-			structs.MetaConsulVersion: (*buildVersion).String(),
-		},
+		// NodeMeta: map[string]string{
+		// 	structs.MetaConsulVersion: (*buildVersion).String(),
+		// },
 	}
 	if node != nil {
 		req.TaggedAddresses = node.TaggedAddresses
