@@ -3451,6 +3451,10 @@ func parseNodes(tx ReadTxn, ws memdb.WatchSet, idx uint64,
 		for service := services.Next(); service != nil; service = services.Next() {
 			ns := service.(*structs.ServiceNode).ToNodeService()
 			dump.Services = append(dump.Services, ns)
+			//Update Node Meta with Consul version from Consul Service - for backward compatibility
+			if dump.Meta[structs.MetaConsulVersion] == "" && ns.ID == "consul" && ns.Meta["version"] != "" {
+				dump.Meta[structs.MetaConsulVersion] = ns.Meta["version"]
+			}
 		}
 
 		// Query the service level checks
