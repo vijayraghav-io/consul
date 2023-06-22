@@ -29,4 +29,9 @@ export default class NodeService extends RepositoryService {
     }
     return this.store.queryLeader(this.getModelName(), params);
   }
+
+  @dataSource('/:partition/:ns/:dc/version')
+  findVersion(params, configuration = {}) {
+    return this.store.queryVersion(this.getModelName(), params);
+  }
 }
