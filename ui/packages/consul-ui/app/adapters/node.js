@@ -73,4 +73,24 @@ export default class NodeAdapter extends Adapter {
       type.modelName
     );
   }
+
+  requestForQueryVersion(request, { uri }) {
+    return request`
+      GET /v1/agent/version
+      X-Request-ID: ${uri}
+    `;
+  }
+
+  queryVersion(store, type, id, snapshot) {
+    return this.rpc(
+      function (adapter, request, serialized, unserialized) {
+        return adapter.requestForQueryVersion(request, serialized, unserialized);
+      },
+      function (serializer, respond, serialized, unserialized) {
+        return serializer.respondForQueryVersion(respond, serialized, unserialized);
+      },
+      snapshot,
+      type.modelName
+    );
+  }
 }
