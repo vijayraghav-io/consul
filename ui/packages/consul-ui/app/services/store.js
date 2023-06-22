@@ -88,4 +88,17 @@ export default class StoreService extends Store {
     const modelClass = { modelName: modelName };
     return adapter.logout(this, modelClass, query.id, query);
   }
+
+  //
+  // TODO: This one is only for nodes, should fail nicely if you call it
+  // for anything other than nodes for good DX
+  queryVersion(modelName, query) {
+    const adapter = this.adapterFor(modelName);
+    const serializer = this.serializerFor(modelName);
+    const modelClass = { modelName: modelName };
+    return adapter.queryVersion(this, modelClass, null, query).then((payload) => {
+      payload.meta = serializer.normalizeMeta(this, modelClass, payload, null, 'leader');
+      return payload;
+    });
+  }
 }
