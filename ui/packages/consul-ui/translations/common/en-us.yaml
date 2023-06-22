@@ -53,6 +53,7 @@ consul:
   redundancyzone: Redundancy zone
   peername: Peer
   partition: Admin Partitions
+  version: Version
 search:
   search: Search
   searchproperty: Search Across
