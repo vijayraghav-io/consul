@@ -108,4 +108,32 @@ export default class NodeSerializer extends Serializer.extend(EmbeddedRecordsMix
       );
     });
   }
+
+  respondForQueryVersion(respond, query) {
+    // don't call super here we don't care about
+    // ids/fingerprinting
+    return respond((headers, body) => {
+      const curVer = body.HumanVersion;
+      let majorVer = parseInt(curVer.split('.')[0]);
+      let minorVer = parseInt(curVer.split('.')[1]);
+      const versions = [majorVer.toString() + '.' + minorVer.toString() + '.'];
+      //To DO: the below logic will be replaced by a call back function before PR Merge
+      if (minorVer == 0) {
+        --majorVer;
+        versions.push(majorVer.toString() + '.');
+      } else {
+        --minorVer;
+        versions.push(majorVer.toString() + '.' + minorVer.toString() + '.');
+        if (minorVer == 0) {
+          --majorVer;
+          versions.push(majorVer.toString() + '.');
+        } else {
+          --minorVer;
+          versions.push(majorVer.toString() + '.' + minorVer.toString() + '.');
+        }
+      }
+      versions.push('...');
+      return { versions: versions };
+    });
+  }
 }
