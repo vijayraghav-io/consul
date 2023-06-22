@@ -19,13 +19,14 @@
       )
   )
 
+  (if (eq search.status.key "version") (concat search.status.value "x")
   (t (concat "components.consul.node.search-bar." search.status.value)
       default=(array
         (concat "common.search." search.status.value)
         (concat "common.consul." search.status.value)
         (concat "common.brand." search.status.value)
       )
-  )
+  ))
 
 as |key value|}}
       <search.RemoveFilter
@@ -90,6 +91,34 @@ as |key value|}}
                   (concat "common.search." state)
                 )
             }}
+          </Option>
+    {{/each}}
+  {{/let}}
+        </BlockSlot>
+      </search.Select>
+      <search.Select
+        class="type-version"
+        @position="left"
+        @onchange={{action @filter.version.change}}
+        @multiple={{false}}
+      as |components|>
+        <BlockSlot @name="selected">
+          <span>
+            {{t "common.consul.version"}}
+          </span>
+        </BlockSlot>
+        <BlockSlot @name="options">
+  {{#let components.Optgroup components.Option as |Optgroup Option|}}
+    {{#each @versions as |version|}}
+          {{!-- <Option class="value-{{state}}" @value={{version}} @selected={{includes state @filter.status.value}}> --}}
+          {{!-- <Option @value={{if (not-eq version "x.x.") version (concat "!" (join @versions "!"))}} @selected={{includes version @filter.version.value}}> --}}
+          <Option @value={{version}} @selected={{includes version @filter.version.value}}>
+            {{!-- {{t (concat "common.consul." state)
+                default=(array
+                  (concat "common.search." state)
+                )
+            }} --}}
+            {{concat version "x"}}
           </Option>
     {{/each}}
   {{/let}}
