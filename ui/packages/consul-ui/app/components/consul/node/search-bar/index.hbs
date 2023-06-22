@@ -118,7 +118,7 @@ as |key value|}}
                   (concat "common.search." state)
                 )
             }} --}}
-            {{concat version "x"}}
+            {{if (eq version "...") version (concat version "x")}}
           </Option>
     {{/each}}
   {{/let}}
