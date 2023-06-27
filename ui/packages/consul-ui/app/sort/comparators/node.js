@@ -39,8 +39,8 @@ export default ({ properties }) =>
         }
       };
     } else if (key.startsWith('Version:')) {
+      console.log('Version Comparator');
       return function (itemA, itemB) {
-        console.log('Version Comparator');
         const [, dir] = key.split(':');
         let a, b;
         if (dir === 'asc') {
@@ -63,8 +63,8 @@ export default ({ properties }) =>
         });
         console.log('VersionB : ', versionB);
 
-        console.log('minLength :', minLength);
         const minLength = Math.min(versionA.length, versionB.length);
+        console.log('minLength :', minLength);
 
         for (let i = 0; i < minLength; i++) {
           const diff = versionA[i] - versionB[i];
