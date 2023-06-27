@@ -39,7 +39,6 @@ export default ({ properties }) =>
         }
       };
     } else if (key.startsWith('Version:')) {
-      console.log('Version Comparator');
       return function (itemA, itemB) {
         const [, dir] = key.split(':');
         let a, b;
@@ -56,24 +55,19 @@ export default ({ properties }) =>
           const number = Number(part);
           return isNaN(number) ? 0 : number;
         });
-        console.log('VersionA : ', versionA);
         const versionB = b.Version.split('.').map((part) => {
           const number = Number(part);
           return isNaN(number) ? 0 : number;
         });
-        console.log('VersionB : ', versionB);
 
         const minLength = Math.min(versionA.length, versionB.length);
-        console.log('minLength :', minLength);
 
         for (let i = 0; i < minLength; i++) {
           const diff = versionA[i] - versionB[i];
-          switch (diff) {
+          switch (true) {
             case diff > 0:
-              console.log('diff :', diff);
               return 1;
             case diff < 0:
-              console.log('diff :', diff);
               return -1;
           }
         }
@@ -81,5 +75,6 @@ export default ({ properties }) =>
         return versionA.length - versionB.length;
       };
     }
+
     return properties(['Node'])(key);
   };
