@@ -156,6 +156,9 @@ export default class ApplicationSerializer extends Serializer {
     // ember-data methods so we have the opportunity to do this on a per-model
     // level
     const meta = this.normalizeMeta(store, modelClass, normalizedPayload, id, requestType);
+    if (modelClass.modelName === 'node') {
+      meta.versions = this.getDistinctConsulVersions(normalizedPayload);
+    }
     if (requestType !== 'query') {
       normalizedPayload.meta = meta;
     }
@@ -214,5 +217,40 @@ export default class ApplicationSerializer extends Serializer {
 
   normalizePayload(payload, id, requestType) {
     return payload;
+  }
+
+  //This is only for node
+  getDistinctConsulVersions(payload) {
+    let versionSet = new Set();
+    payload.forEach(function (item) {
+      if (item.Meta['consul-version'] != '') {
+        const split = item.Meta['consul-version'].split('.');
+        versionSet.add(split[0] + '.' + split[1]);
+      }
+    });
+
+    const versionArray = Array.from(versionSet);
+    // Sort the array in descending order using a custom comparison function
+    versionArray.sort((a, b) => {
+      // Split the versions into arrays of numbers
+      const versionA = a.split('.').map((part) => {
+        const number = Number(part);
+        return isNaN(number) ? 0 : number;
+      });
+      const versionB = b.split('.').map((part) => {
+        const number = Number(part);
+        return isNaN(number) ? 0 : number;
+      });
+
+      const minLength = Math.min(versionA.length, versionB.length);
+
+      for (let i = 0; i < minLength; i++) {
+        if (versionA[i] !== versionB[i]) {
+          return versionB[i] - versionA[i];
+        }
+      }
+      return versionB.length - versionA.length;
+    });
+    return versionArray;
   }
 }
