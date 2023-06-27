@@ -156,7 +156,7 @@ export default class ApplicationSerializer extends Serializer {
     // ember-data methods so we have the opportunity to do this on a per-model
     // level
     const meta = this.normalizeMeta(store, modelClass, normalizedPayload, id, requestType);
-    if (modelClass.modelName === 'node') {
+    if (modelClass.modelName === 'node' && requestType === 'query') {
       meta.versions = this.getDistinctConsulVersions(normalizedPayload);
     }
     if (requestType !== 'query') {
