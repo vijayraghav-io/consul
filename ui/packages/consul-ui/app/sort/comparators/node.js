@@ -40,6 +40,7 @@ export default ({ properties }) =>
       };
     } else if (key.startsWith('Version:')) {
       return function (itemA, itemB) {
+        console.log('Version Comparator');
         const [, dir] = key.split(':');
         let a, b;
         if (dir === 'asc') {
@@ -55,22 +56,25 @@ export default ({ properties }) =>
           const number = Number(part);
           return isNaN(number) ? 0 : number;
         });
+        console.log('VersionA : ', versionA);
         const versionB = b.Version.split('.').map((part) => {
           const number = Number(part);
           return isNaN(number) ? 0 : number;
         });
+        console.log('VersionB : ', versionB);
 
+        console.log('minLength :', minLength);
         const minLength = Math.min(versionA.length, versionB.length);
 
         for (let i = 0; i < minLength; i++) {
           const diff = versionA[i] - versionB[i];
           switch (diff) {
             case diff > 0:
+              console.log('diff :', diff);
               return 1;
             case diff < 0:
+              console.log('diff :', diff);
               return -1;
-            default:
-              break;
           }
         }
 
