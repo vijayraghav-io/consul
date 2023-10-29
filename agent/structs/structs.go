@@ -224,6 +224,18 @@ const (
 
 	// MetaConsulVersion is the node metadata key used to store the node's consul version
 	MetaConsulVersion = "consul-version"
+
+	// MetaTlsCertExpiresInDays is the node metadata key used to store the node's TLS Certificate
+	// expiration in Days
+	MetaTlsCertExpiresInDays = "tls-cert-expires-in-days"
+
+	// MetaActiveRootCAExpiresInDays is the node metadata key used to store the node's Actice Root CA
+	// certificate expiration in Days
+	MetaActiveRootCAExpiresInDays = "active-root-ca-expires-in-days"
+
+	// MetaActiveSigningCAExpiresInDays is the node metadata key used to store the node's Actice Signing CA
+	// certificate expiration in Days
+	MetaActiveSigningCAExpiresInDays = "active-signing-ca-expires-in-days"
 )
 
 var allowedConsulMetaKeysForMeshGateway = map[string]struct{}{MetaWANFederationKey: {}}

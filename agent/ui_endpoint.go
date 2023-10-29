@@ -4,6 +4,7 @@
 package agent
 
 import (
+	"crypto/x509"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -11,17 +12,20 @@ import (
 	"path"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/serf/serf"
 
 	"github.com/hashicorp/consul/acl"
 	"github.com/hashicorp/consul/agent/config"
+	"github.com/hashicorp/consul/agent/connect"
 	"github.com/hashicorp/consul/agent/consul"
 	"github.com/hashicorp/consul/agent/metadata"
 	"github.com/hashicorp/consul/agent/structs"
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/logging"
+	"github.com/hashicorp/consul/tlsutil"
 )
 
 // ServiceSummary is used to summarize a service
@@ -143,6 +147,13 @@ RPC:
 				info.Meta[structs.MetaConsulVersion] = mapAddrVer[info.Address]
 			}
 		}
+		// For Server, add Certificate expiry (in days) to Node Meta
+		if info.Address == s.agent.AgentLocalMember().Addr.String() {
+			certExpiration, _ := GetCertExpiration(s)
+			for key, value := range certExpiration {
+				info.Meta[key] = value
+			}
+		}
 	}
 	if out.Dump == nil {
 		out.Dump = make(structs.NodeDump, 0)
@@ -166,6 +177,13 @@ RPC:
 					info.Meta = make(map[string]string)
 				}
 				info.Meta[structs.MetaConsulVersion] = mapAddrVer[info.Address]
+			}
+		}
+		// For Server, add Certificate expiry (in days) to Node Meta
+		if info.Address == s.agent.AgentLocalMember().Addr.String() {
+			certExpiration, _ := GetCertExpiration(s)
+			for key, value := range certExpiration {
+				info.Meta[key] = value
 			}
 		}
 	}
@@ -280,11 +298,71 @@ RPC:
 				info.Meta[structs.MetaConsulVersion] = mapAddrVer[info.Address]
 			}
 		}
+		// For Server, add Certificate expiry (in days) to Node Meta
+		if info.Address == s.agent.AgentLocalMember().Addr.String() {
+			certExpiration, _ := GetCertExpiration(s)
+			for key, value := range certExpiration {
+				info.Meta[key] = value
+			}
+		}
 		return info, nil
 	}
 
 	resp.WriteHeader(http.StatusNotFound)
 	return nil, nil
+}
+
+// GetCertExpiration parses the certificates (TLS, Root CA, Signing (intermediate) certificate)
+// on the current server (where this function is running) and gets the expiration date
+func GetCertExpiration(s *HTTPHandlers) (map[string]string, error) {
+	var certExpirations = make(map[string]string)
+
+	// ReloadConfig() is required if old cert is replaced with new cert
+	// and expiry date is to be parsed from new cert without restarting agent
+	s.agent.AutoReloadConfig()
+
+	// Parse TLS certificate
+	var c *tlsutil.Configurator = s.agent.tlsConfigurator
+	raw := c.Cert()
+	if raw == nil {
+		return certExpirations, fmt.Errorf("tls not enabled")
+	}
+	cert, err := x509.ParseCertificate(raw.Certificate[0])
+	if err != nil {
+		return certExpirations, fmt.Errorf("failed to parse agent tls cert: %w", err)
+	}
+	tlsCertExpiresInDays := fmt.Sprintf("%d", int(time.Until(cert.NotAfter).Hours()/24))
+	certExpirations[structs.MetaTlsCertExpiresInDays] = tlsCertExpiresInDays
+
+	// Parse Root CA and Signing (intermediate) certificate
+	if s.agent.config.ServerMode {
+		if server, ok := s.agent.delegate.(*consul.Server); ok {
+			state := server.FSM().State()
+			_, root, err := state.CARootActive(nil)
+			switch {
+			case err != nil:
+				return certExpirations, fmt.Errorf("failed to retrieve root CA: %w", err)
+			case root == nil:
+				return certExpirations, fmt.Errorf("no active root CA")
+			}
+			actRootCAExpiresInDays := fmt.Sprintf("%d", int(time.Until(root.NotAfter).Hours()/24))
+			certExpirations[structs.MetaActiveRootCAExpiresInDays] = actRootCAExpiresInDays
+
+			// the CA used in a secondary DC is the active intermediate,
+			// which is the last in the IntermediateCerts stack
+			if len(root.IntermediateCerts) == 0 {
+				return certExpirations, fmt.Errorf("no intermediate available")
+			}
+			interCert, err := connect.ParseCert(root.IntermediateCerts[len(root.IntermediateCerts)-1])
+			if err != nil {
+				return certExpirations, err
+			}
+			actSigningCAExpiresInDays := fmt.Sprintf("%d", int(time.Until(interCert.NotAfter).Hours()/24))
+			certExpirations[structs.MetaActiveSigningCAExpiresInDays] = actSigningCAExpiresInDays
+		}
+	}
+
+	return certExpirations, err
 }
 
 // UICatalogOverview is used to get a high-level overview of the health of nodes, services,
