@@ -1,0 +1,27 @@
+/**
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: BUSL-1.1
+ */
+
+@keyframes flash {
+  0% {
+    background-color: red;
+  }
+  50% {
+    background-color: white;
+  }
+  100% {
+    background-color: red;
+  }
+}
+
+.consul-node-cert-expiry {
+  display: inline;
+  border-radius: 8px / 50%;
+  background-color: red;
+  color: white !important;
+  padding: 2px 5px 2px 5px;
+  font-size: 14px !important;
+  margin-left: 5px;
+  animation: flash 1s linear infinite;
+}

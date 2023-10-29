@@ -29,6 +29,25 @@ as |item index|>
     <a data-test-node href={{href-to "dc.nodes.show" item.Node params=(hash peer=item.PeerName)}}>
       {{item.Node}}
     </a>
+    <dl>
+      <dt>
+        <span>CertificationExpiry</span>
+      </dt>
+      <dd>
+          {{!-- Displaying TLS cert expires in --}}
+          {{#if (and item.Meta.tls-cert-expires-in-days (lt item.Meta.tls-cert-expires-in-days 29))}}
+            <span class="consul-node-cert-expiry">Tls cert expires in {{item.Meta.tls-cert-expires-in-days}} Days</span>
+          {{/if}}
+           {{!-- Displaying Root CA expires in --}}
+          {{#if (and item.Meta.active-root-ca-expires-in-days (lt item.Meta.active-root-ca-expires-in-days 29))}}
+            <span class="consul-node-cert-expiry">Root CA expires in {{item.Meta.active-root-ca-expires-in-days}} Days</span>
+          {{/if}}
+          {{!-- Displaying Signing CA (intermediate) expires in --}}
+          {{#if (and item.Meta.active-signing-ca-expires-in-days (lt item.Meta.active-signing-ca-expires-in-days 29))}}
+            <span class="consul-node-cert-expiry">Signing CA expires in {{item.Meta.active-signing-ca-expires-in-days}} Days</span>
+          {{/if}}
+      </dd>
+    </dl>
   </BlockSlot>
   <BlockSlot @name="details">
     <Consul::Node::PeerInfo @item={{item}} />
