@@ -1552,8 +1552,23 @@ func (s *ResourceGenerator) makeExposedCheckListener(cfgSnap *proxycfg.ConfigSna
 		return nil, err
 	}
 
-	chain := &envoy_listener_v3.FilterChain{
-		Filters: []*envoy_listener_v3.Filter{f},
+	var chain *envoy_listener_v3.FilterChain
+
+	if path.CertFile != "" && path.KeyFile != "" {
+		tlsContext := &envoy_tls_v3.DownstreamTlsContext{
+			CommonTlsContext: makeCommonTLSContextFromFiles(path.CAFile, path.CertFile, path.KeyFile),
+		}
+
+		transportSocket, _ := makeDownstreamTLSTransportSocket(tlsContext)
+
+		chain = &envoy_listener_v3.FilterChain{
+			Filters:         []*envoy_listener_v3.Filter{f},
+			TransportSocket: transportSocket,
+		}
+	} else {
+		chain = &envoy_listener_v3.FilterChain{
+			Filters: []*envoy_listener_v3.Filter{f},
+		}
 	}
 
 	// For registered checks restrict traffic sources to localhost and Consul's advertise addr
@@ -2382,6 +2397,8 @@ func makeListenerFilter(opts listenerFilterOpts) (*envoy_listener_v3.Filter, err
 	case "grpc", "http2", "http":
 		return makeHTTPFilter(opts)
 	case "tcp":
+		fallthrough
+	case "https":
 		fallthrough
 	default:
 		if opts.useRDS {
