@@ -776,6 +776,7 @@ type ExposePath struct {
 	// ParsedFromCheck is set if this path was parsed from a registered check
 	ParsedFromCheck bool `json:",omitempty" alias:"parsed_from_check"`
 
+	//
 	CAFile string `json:",omitempty" alias:"ca_file"`
 
 	CertFile string `json:",omitempty" alias:"cert_file"`
