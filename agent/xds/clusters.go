@@ -1122,26 +1122,27 @@ func (s *ResourceGenerator) makeAppCluster(cfgSnap *proxycfg.ConfigSnapshot, nam
 		}
 	}
 
-	var filePath string
-	if caFilePath != "" {
-		filePath = caFilePath
-	} else if certFilePath != "" {
-		filePath = certFilePath
-	}
+	fmt.Printf("\n before certFilePath - %s \n", certFilePath)
+	if certFilePath != "" {
+		fmt.Printf("\n after certFilePath - %s \n", certFilePath)
+		var validationContextType *envoy_tls_v3.CommonTlsContext_ValidationContext
+		validationContextType = nil
+		if caFilePath != "" {
+			validationContextType = &envoy_tls_v3.CommonTlsContext_ValidationContext{
+				ValidationContext: &envoy_tls_v3.CertificateValidationContext{
+					TrustedCa: &envoy_core_v3.DataSource{
+						Specifier: &envoy_core_v3.DataSource_Filename{
+							Filename: caFilePath,
+						},
+					},
+				},
+			}
+		}
 
-	if filePath != "" {
 		transportTLSContext, _ := makeUpstreamTLSTransportSocket(
 			&envoy_tls_v3.UpstreamTlsContext{
 				CommonTlsContext: &envoy_tls_v3.CommonTlsContext{
-					ValidationContextType: &envoy_tls_v3.CommonTlsContext_ValidationContext{
-						ValidationContext: &envoy_tls_v3.CertificateValidationContext{
-							TrustedCa: &envoy_core_v3.DataSource{
-								Specifier: &envoy_core_v3.DataSource_Filename{
-									Filename: filePath,
-								},
-							},
-						},
-					},
+					ValidationContextType: validationContextType,
 				},
 			},
 		)

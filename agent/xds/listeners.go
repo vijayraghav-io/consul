@@ -1556,7 +1556,8 @@ func (s *ResourceGenerator) makeExposedCheckListener(cfgSnap *proxycfg.ConfigSna
 
 	if path.CertFile != "" && path.KeyFile != "" {
 		tlsContext := &envoy_tls_v3.DownstreamTlsContext{
-			CommonTlsContext: makeCommonTLSContextFromFiles(path.CAFile, path.CertFile, path.KeyFile),
+			CommonTlsContext:         makeCommonTLSContextFromFiles(path.CAFile, path.CertFile, path.KeyFile),
+			RequireClientCertificate: &wrapperspb.BoolValue{Value: true},
 		}
 
 		transportSocket, _ := makeDownstreamTLSTransportSocket(tlsContext)

@@ -169,11 +169,11 @@ type ExposePath struct {
 	// ParsedFromCheck is set if this path was parsed from a registered check
 	ParsedFromCheck bool
 
-	CAFile *string `mapstructure:"ca_file"`
+	CAFile *string `mapstructure:"cafile"`
 
-	CertFile *string `mapstructure:"cert_file"`
+	CertFile *string `mapstructure:"certfile"`
 
-	KeyFile *string `mapstructure:"key_file"`
+	KeyFile *string `mapstructure:"keyfile"`
 }
 
 type LogSinkType string

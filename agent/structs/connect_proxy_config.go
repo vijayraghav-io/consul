@@ -777,11 +777,11 @@ type ExposePath struct {
 	ParsedFromCheck bool `json:",omitempty" alias:"parsed_from_check"`
 
 	//
-	CAFile string `json:",omitempty" alias:"ca_file"`
+	CAFile string `json:",omitempty" alias:"cafile"`
 
-	CertFile string `json:",omitempty" alias:"cert_file"`
+	CertFile string `json:",omitempty" alias:"certfile"`
 
-	KeyFile string `json:",omitempty" alias:"key_file"`
+	KeyFile string `json:",omitempty" alias:"keyfile"`
 }
 
 func (t *ExposePath) UnmarshalJSON(data []byte) (err error) {
